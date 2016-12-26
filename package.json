@@ -1,0 +1,31 @@
+{
+  "name": "html-prototypes",
+  "version": "1.0.0",
+  "description": "Building HTML Prototypes for Content Management Systems",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anulal-s/HTML-Prototypes.git"
+  },
+  "keywords": [
+    "HTML",
+    "Prototypes",
+    "CMS",
+    "AEM"
+  ],
+  "author": "Anulal S",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/anulal-s/HTML-Prototypes/issues"
+  },
+  "homepage": "https://github.com/anulal-s/HTML-Prototypes#readme",
+  "devDependencies": {
+    "gulp-file-include": "^1.0.0",
+    "gulp-inject": "^4.2.0",
+    "gulp-inject-partials": "^1.0.2",
+    "gulp-webserver": "^0.9.1"
+  }
+}
