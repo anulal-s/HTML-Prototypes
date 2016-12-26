@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/anulal-s/HTML-Prototypes#readme",
   "devDependencies": {
+    "gulp": "^3.9.1",
     "gulp-file-include": "^1.0.0",
     "gulp-inject": "^4.2.0",
     "gulp-inject-partials": "^1.0.2",
