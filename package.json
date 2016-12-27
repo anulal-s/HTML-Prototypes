@@ -4,7 +4,7 @@
   "description": "Building HTML Prototypes for Content Management Systems",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "gulp"
   },
   "repository": {
     "type": "git",
@@ -27,6 +27,7 @@
     "gulp-file-include": "^1.0.0",
     "gulp-inject": "^4.2.0",
     "gulp-inject-partials": "^1.0.2",
+    "gulp-watch": "^4.3.11",
     "gulp-webserver": "^0.9.1"
   }
 }
