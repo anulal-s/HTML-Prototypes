@@ -2,7 +2,6 @@
 
     var elmLoadMore = document.getElementById('load-more');
         elmLoadMore.addEventListener('click', loadMore);
-    var response = [];
 
 
     function loadMore(e) {
@@ -147,10 +146,11 @@
 
 
     function getRandomResponse() {
-
+        var response = [];
         for (var i = 0; i < 9; i++) {
             response.push(Math.floor((Math.random() * 3) + 1));
         }
+        console.log(response);
         // return [2, 3, 1, 1, 1, 3, 3, 3, 2, 1];
         // return [1, 1, 3, 3, 2, 1, 2, 2, 2, 3];
         // return [3, 1, 1, 3, 1, 2, 2, 2, 2, 3];
@@ -163,8 +163,8 @@
         // return [1, 1, 3, 1, 1, 1, 3, 3, 2];
         // return [1, 2, 3, 1, 3, 3, 1, 1, 1];
         // return [2, 1, 1, 1, 3, 3, 3, 2, 2];
-        response =  [2, 1, 1, 1, 1, 2, 1, 1, 3]
-        console.log(response);
+        return [2, 1, 1, 1, 1, 2, 1, 1, 3]
+        return response;
     }
 })();
 
