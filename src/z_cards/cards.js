@@ -2,10 +2,18 @@
 
     var elmLoadMore = document.getElementById('load-more');
         elmLoadMore.addEventListener('click', loadMore);
-
+    var response = [];
+    var mappedResponse = [];
+    var mapCount = [0, 0, 0];
+    var positions = ['left', 'right', 'center']; // 0,1,2
+    var mapPosition = 0;
+    
+    var nextPosition = 1;
 
     function loadMore(e) {
-        var response = mapResponse(sortResponse(getRandomResponse()));
+        getRandomResponse();
+        sortResponse();
+        mapResponse();
         var map = [0, 'half', '', 'double'];
         for (var i = 0; i < response.length; i++) {
             var originalSize = map[response[i].type];
@@ -19,14 +27,7 @@
         }
     }
 
-    function mapResponse(response) {
-
-        var positions = ['left', 'right', 'center']; // 0,1,2
-        var positionCount = [0, 0, 0];
-        var mappedResponse = [];
-
-        var positionToFit = 0;
-        var nextPosition = 1;
+    function mapResponse() {
 
         var obj = {};
         var index;
@@ -35,50 +36,50 @@
         var centerCountForExtra = 2;
         for (var i = 0; i < response.length; i++) {
             obj = response[i];
-            obj.align = positions[positionToFit];
-            obj.height = positionCount[positionToFit];
-            positionCount[positionToFit] += obj.type;
-            nextPosition = (positionToFit === 2) ? 0 : positionToFit + 1;
+            obj.align = positions[mapPosition];
+            obj.height = mapCount[mapPosition];
+            mapCount[mapPosition] += obj.type;
+            nextPosition = (mapPosition === 2) ? 0 : mapPosition + 1;
 
-            if (positionToFit === 1 && (positionCount[0] > (positionCount[1] + rightCountForExtra))) {
+            if (mapPosition === 1 && (mapCount[0] > (mapCount[1] + rightCountForExtra))) {
                 
-                index = findItemtoFit(response, i+2, (positionCount[0] - (positionCount[1] + rightCountForExtra)))
-                console.log(i, index, "add extra item in right", positionCount[0], positionCount[1]);
+                index = findItemtoFit(i+2, (mapCount[0] - (mapCount[1] + rightCountForExtra)))
+                console.log(i, "add extra item in right from", index, "gap", mapCount[0] - mapCount[1]);
                 if(index) {
                     extra = response[index]
                     extra.align = positions[1];
                     response.splice(index, 1);
-                    console.log( 'sortInternal',  i+2, positionCount);
-                    //response = sortResponse(response, i+2, positionCount);
+                    console.log( 'sortInternal',  i+2, mapCount);
+                    sortResponse(i+2);
                 }
             }
-            if (positionToFit === 2 && (positionCount[0] > (positionCount[2] + centerCountForExtra))) {
-                index = findItemtoFit(response, i+1, (positionCount[0] - (positionCount[2] + centerCountForExtra)));
-                console.log(i, index, "add extra item in center", positionCount[1], positionCount[2]);
+            if (mapPosition === 2 && (mapCount[0] > (mapCount[2] + centerCountForExtra))) {
+                index = findItemtoFit(i+1, (mapCount[0] - (mapCount[2] + centerCountForExtra)));
+                console.log(i, "add extra item in center from", index, "gap", mapCount[0] - mapCount[2]);
                 if(index) {
                     extra = response[index]
                     extra.align = positions[2];
                     response.splice(index, 1);
-                    console.log( 'sortInternal',  i+1, positionCount);
-                    //response = sortResponse(response, i+1, positionCount);
+                    console.log( 'sortInternal',  i+1, mapCount);
+                    sortResponse(i+1);
                 }
             }
 
             mappedResponse.push(obj);
             if (extra) {
-                positionCount[positionToFit] += extra.type;
-                extra.height = positionCount[positionToFit];
+                mapCount[mapPosition] += extra.type;
+                extra.height = mapCount[mapPosition];
                 mappedResponse.push(extra);
                 extra = false;
 
             }
-            positionToFit = nextPosition;
+            mapPosition = nextPosition;
         }
-        console.log(mappedResponse);
-        return mappedResponse;
+        console.log('mappedResponse', mappedResponse.length, mappedResponse);
+        response =  mappedResponse;
     }
 
-    function findItemtoFit(response, indexToStart, gap) {
+    function findItemtoFit(indexToStart, gap) {
         var itemIndexToFit = [0, 0, 0];
         for (var i = indexToStart; i < response.length; i++) {
             if(response[i].type == 1 && itemIndexToFit[0] === 0)
@@ -101,92 +102,78 @@
     }
 
 
-    function sortResponse(response, indexToStart, positionCount) {
+    function sortResponse(indexToStart) {
 
-        var positionCount = (typeof positionCount === "object") ? positionCount : [0, 0, 0];
-        var indexToStart = (typeof indexToStart === "number") ? indexToStart : 0;
-        var sortResponse = [];
-        var positionToFit = 0;
         var sorted = false;
         var obj = {};
-
+        var prevPosition1, prevPosition2;
+        var sortPosition = 0;
+        var sortCount = [0, 0, 0];
+        if(typeof indexToStart === "number") {
+            var internalSort = true;
+            //sortPosition = 0;
+        } else {
+            indexToStart = 0;
+            //sortPosition = mapPosition;
+        }
+        
         for (var i = indexToStart; i < response.length; i++) {
-            obj = {};
-            obj.value = i + 1;
-            obj.type = response[i];
-            positionCount[positionToFit] += response[i];
-            obj.height = positionCount[positionToFit];
+           
+            obj = response[i];
+            obj.align = positions[sortPosition];
+            sortCount[sortPosition] += response[i].type;
             sorted = false;
             if (i > 0) {
-                var obj1 = sortResponse[i - 1];
-                if ((positionToFit === 1) && (obj1.height < obj.height)) {
-                    sortResponse.splice((i - 1), 0, obj);
+                prevPosition1 = ( sortPosition === 0 ) ? 2 : sortPosition-1; 
+                if ((sortPosition === 1) && (sortCount[prevPosition1] < sortCount[sortPosition])) {
+                    response.splice((i - 1), 0, obj);
                     sorted = true;
                 }
             }
             if (i > 1) {
-                var obj2 = sortResponse[i - 2];
-
-                if ((positionToFit === 2) && (obj2.height < obj.height)) {
-                    sortResponse.splice((i - 2), 0, obj);
+                prevPosition2 = ( prevPosition1 === 0 ) ? 2 : prevPosition1-1; 
+                if ((sortPosition === 2) && (sortCount[prevPosition2] < sortCount[sortPosition])) {
+                    response.splice((i - 2), 0, obj);
                     sorted = true;
-                } else if (positionToFit === 2 && (obj1.height < obj.height)) {
-                    sortResponse.splice((i - 1), 0, obj);
+                } else if (sortPosition === 2 && (sortCount[prevPosition1] < sortCount[sortPosition])) {
+                    response.splice((i - 1), 0, obj);
                     sorted = true;
                 }
             }
-            if (!sorted) {
-                sortResponse.push(obj);
-            }
-            positionToFit = (positionToFit === 2) ? 0 : positionToFit + 1;
+            if (sorted)
+                response.splice(i+1, 1);
+            else 
+                response[i] = obj;
+            sortPosition = (sortPosition === 2) ? 0 : sortPosition + 1;
         }
-        console.log('sortResult', JSON.stringify(sortResponse));
-        return sortResponse;
+        console.log('sortResult', response.length, response);
     }
 
 
     function getRandomResponse() {
-        var response = [];
-        for (var i = 0; i < 9; i++) {
-            response.push(Math.floor((Math.random() * 3) + 1));
+
+        response = [];
+        mappedResponse = [];
+        mapPosition = 0;
+        var random = [];
+        for (var i = 0; i < 12; i++) {
+            random.push(Math.floor((Math.random() * 3) + 1));
         }
-        console.log(response);
-        // return [2, 3, 1, 1, 1, 3, 3, 3, 2, 1];
-        // return [1, 1, 3, 3, 2, 1, 2, 2, 2, 3];
-        // return [3, 1, 1, 3, 1, 2, 2, 2, 2, 3];
-        // return [2, 1, 1, 3, 3, 2, 1, 2, 1];
-        // return [3, 3, 3, 3, 2, 2, 2, 1, 1];
-        // return [1, 1, 2, 3, 3, 3, 3, 3, 2];
-        // return [2, 1, 3, 3, 3, 2, 3, 3, 3];
-        // return [2, 3, 2, 2, 2, 1, 3, 3, 1];
-        // return [1, 1, 3, 1, 1, 1, 3, 3, 2];
-        // return [1, 1, 3, 1, 1, 1, 3, 3, 2];
-        // return [1, 2, 3, 1, 3, 3, 1, 1, 1];
-        // return [2, 1, 1, 1, 3, 3, 3, 2, 2];
-        return [2, 1, 1, 1, 1, 2, 1, 1, 3]
-        return response;
+
+        //random = [3, 3, 2, 1, 2, 3, 2, 2, 2];
+        console.log('getRandomResponse', random.length, random);
+
+        var obj;
+        var rPositions = ['left', 'right', 'center']; // 0,1,2
+        var rPosition = 0;
+        for (var i = 0; i < random.length; i++) {
+            obj = {};
+            obj.value = i + 1;
+            obj.type = random[i];
+            obj.align = rPositions[rPosition];
+            response.push(obj);
+            rPosition = (rPosition === 2) ? 0 : rPosition + 1;
+        }
     }
+
 })();
-
-/*
-        if (positionToFit === 1 && (positionCount[0] > (positionCount[1] + rightCountToAdd))) {
-            index = i + 3;
-            if (index < response.length) {
-                extra = response[index];
-                extra.align = positions[positionToFit];
-                for (var j = index; j < response.length; j = j + 3) {
-                    if (response[j + 3]) 
-                        response.splice(j + 1, 0, response[j + 3]);
-                    response.splice(j, 1);
-                }
-                rightCountToAdd = 2;
-            }
-        }
-
-        if (((i + 2) === response.length ) && (positionToFit < 2) && (positionCount[0] > (positionCount[2] + 2))) {
-            index = i + 1;
-            extra = response[index];
-            extra.align = positions[2];
-            response.splice(index, 1);
-        }
-*/
